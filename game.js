@@ -26,6 +26,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         this.radius = radius;
         this.center = false;
         this.fillColor = fillColor;
+        this.currenttimer;
 
 
         scene.add.existing(this);
@@ -36,7 +37,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
     holding(scene){
         this.on('pointerdown', ()=>{
             if(!this.setimer){
-                scene.time.addEvent({
+                this.currenttimer = scene.time.addEvent({
                     delay: 700,
                     loop: false,
                     callback: () =>{
@@ -55,6 +56,10 @@ class glyphcircle extends Phaser.GameObjects.Arc{
 
         })
         this.on("drag", (pointer) =>{
+            if(this.currenttimer != null){
+                scene.time.removeEvent(this.currenttimer);
+                this.setimer = false;
+            }
             if(!this.moved){
                 console.log("made glyph")
                 this.moved = true;
@@ -67,10 +72,8 @@ class glyphcircle extends Phaser.GameObjects.Arc{
             sub.x = pointer.x;
             sub.y = pointer.y;
         })
-        this.on("dragend", (pointer)=>{
-            if(!this.setimer){
-                this.moved = false;
-            }
+        scene.input.on("pointerup", (pointer)=>{
+            this.moved = false;
         })
     }
 }
