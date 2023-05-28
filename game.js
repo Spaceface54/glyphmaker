@@ -129,6 +129,7 @@ class gamescene extends Phaser.Scene{
                         this.lookedglyph.parent.displayed.setScale(0.15);
                     }
                 }
+                this.clearchildren(this.lookedglyph);
                 this.lookedglyph.ring.destroy();
                 this.lookedglyph.destroy();
                 this.lookedglyph.display(null);
@@ -252,6 +253,10 @@ class gamescene extends Phaser.Scene{
             }
         }
     }
+
+    readglyphs(center){
+
+    }
 }
 
 class glyphcircle extends Phaser.GameObjects.Arc{
@@ -359,6 +364,13 @@ class glyphcircle extends Phaser.GameObjects.Arc{
             this.displayed.destroy();
             this.displayed = null;
         }
+    }
+}
+
+class glyphcombo{
+    constructor(meaning, subjects = [], verbmods = [], verbs = [], antiverbmods = []){
+        this.meaning = meaning;
+        this.glyphs = glyphs;
     }
 }
 let config = {
