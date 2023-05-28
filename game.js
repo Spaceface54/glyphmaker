@@ -14,6 +14,7 @@ class gamescene extends Phaser.Scene{
             light: 5,
             dark: 5
         }
+        this.revealed = false;
     }
     preload(){
         //this.load.path ="./assets/";
@@ -41,11 +42,15 @@ class gamescene extends Phaser.Scene{
             this.add.image(w*0.37, h*0.5, "blank"),
             this.add.image(w*0.63, h*0.5, "delete")
         ]
-        
+        let cntr = this.add.container(glyphs);
+        //cntr.setDepth(2);
+        cntr.x = w*0.5;
+        cntr.y = h*0.5;
+        console.log(cntr.list[1]);
         for(let i = 0; i < 8; i++){
             glyphs[i].setDepth(2);
             glyphs[i].alpha = 1;
-            glyphs[i].setInteractive();
+            //glyphs[i].setInteractive();
             glyphs[i].setScale(0.2);
         }
 
@@ -100,9 +105,15 @@ class gamescene extends Phaser.Scene{
             }
         });
         glyphs[7].on("pointerdown", () =>{
-            if(this.lookedglyph != null && this.glyphcounts.fire > 0){
-                //delete function
-                //console.log("delete");
+            if(this.lookedglyph != null && this.lookedglyph.parent != null){
+                let index = this.lookedglyph.parent.children.find(element => element == this.lookedglyph);
+                let tempa = this.lookedglyph.parent.children[0];
+                this.lookedglyph.parent.children[index] = tempa;
+                this.lookedglyph.parent.children.shift();
+                this.clearchildren(this.lookedglyph);
+                this.lookedglyph.ring.destroy();
+                this.lookedglyph.destroy();
+                this.lookedglyph = null;
             }
         });
         
@@ -111,10 +122,59 @@ class gamescene extends Phaser.Scene{
         this.input.on("held", (glyph) => {
             console.log("worked!");
             this.lookedglyph = glyph;
+            this.revealglyphs(cntr, glyphs);
+        })
+        this.input.on("pointerdown", () =>{
+            this.hideglyphs(glyphs);
         })
     }
     update(){
         
+    }
+    clearchildren(glyph){
+        if(glyph.children.length == 0){
+            glyph.ring.destroy();
+            glyph.destroy();
+            return;
+        }
+        else{
+            for(let i = 0; i < glyph.children.length; i++){
+                this.clearchildren(glyph.children[i]);
+            }
+        }
+    }
+    revealglyphs(cntr, glyphs){
+        if(!this.revealed){
+            cntr.x = this.lookedglyph.x;
+            cntr.y = this.lookedglyph.y;
+            for(let i = 0; i < 8; i++){
+                glyphs[i].setInteractive();
+                console.log(glyphs[i]);
+                let deltax = glyphs[i].x;
+                let deltay = glyphs[i].y;
+                this.tweens.add({
+                    targets: glyphs[i],
+                    x: {from: this.lookedglyph.x, to: deltax},
+                    y: {from: this.lookedglyph.y, to: deltay},
+                    alpha: 1,
+                    duration: 500
+                });
+                this.revealed = true;
+            }
+        }
+    }
+    hideglyphs(glyphs){
+        if(this.revealed){
+            for(let i = 0; i < 8; i++){
+                glyphs[i].removeInteractive();
+                this.tweens.add({
+                    target: glyphs[i],
+                    alpha: 0,
+                    duration: 500
+                });
+                this.revealed = false;
+            }
+        }
     }
 }
 
