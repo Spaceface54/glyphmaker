@@ -12,7 +12,8 @@ class gamescene extends Phaser.Scene{
             air: 5,
             earth: 5,
             light: 5,
-            dark: 5
+            dark: 5,
+            focus: 3
         }
         this.revealed = false;
     }
@@ -26,6 +27,7 @@ class gamescene extends Phaser.Scene{
         this.load.image("dark", "dark.png");
         this.load.image("blank", "blank.png");
         this.load.image("delete", "delete.png");
+        this.load.image("focus", "focus.png");
     }
     create(){
         //this.scale.startFullscreen();
@@ -40,13 +42,14 @@ class gamescene extends Phaser.Scene{
             this.add.image(0, -10*5, "light"),
             this.add.image(0, 10*5, "dark"),
             this.add.image(-10*5, 0, "blank"),
-            this.add.image(10*5, 0, "delete")
+            this.add.image(10*5, 0, "delete"),
+            this.add.image(12*5, -12*5, "focus")
         ]
         let cntr = this.add.container();
         //cntr.setDepth(2);
         cntr.x = w*0.5;
         cntr.y = h*0.5;
-        for(let i = 0; i < 8; i++){
+        for(let i = 0; i < 9; i++){
             cntr.add(glyphs[i]);
             glyphs[i].setDepth(2);
             glyphs[i].alpha = 0;
@@ -60,6 +63,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.fire > 0){
                 this.lookedglyph.glyph = "fire";
                 this.glyphcounts.fire -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "fire"));
                 console.log(this.glyphcounts.fire);
             }
         });
@@ -67,6 +71,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.water > 0){
                 this.lookedglyph.glyph = "water";
                 this.glyphcounts.water -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "water"));
                 //console.log(this.glyphcounts.water);
             }
         });
@@ -74,6 +79,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.earth > 0){
                 this.lookedglyph.glyph = "earth";
                 this.glyphcounts.earth -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "earth"));
                 //console.log(this.glyphcounts.earth);
             }
         });
@@ -81,6 +87,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.air > 0){
                 this.lookedglyph.glyph = "air";
                 this.glyphcounts.air -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "air"));
                 //console.log(this.glyphcounts.air);
             }
         });
@@ -88,6 +95,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.light > 0){
                 this.lookedglyph.glyph = "light";
                 this.glyphcounts.light -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "light"));
                 //console.log(this.glyphcounts.light);
             }
         });
@@ -95,6 +103,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null && this.glyphcounts.dark > 0){
                 this.lookedglyph.glyph = "dark";
                 this.glyphcounts.dark -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "dark"));
                 //console.log(this.glyphcounts.dark);
             }
         });
@@ -103,6 +112,7 @@ class gamescene extends Phaser.Scene{
             if(this.lookedglyph != null){
                 this.lookedglyph.glyph = "blank";
                 this.glyphcounts.fire -= 1;
+                this.lookedglyph.display(null);
                 //console.log("blank");
             }
         });
@@ -112,10 +122,32 @@ class gamescene extends Phaser.Scene{
                 let tempa = this.lookedglyph.parent.children[0];
                 this.lookedglyph.parent.children[index] = tempa;
                 this.lookedglyph.parent.children.shift();
-                this.clearchildren(this.lookedglyph);
+                if(this.lookedglyph.parent.children.length == 0){
+                    this.lookedglyph.parent.center = false;
+                    this.lookedglyph.parent.setScale(1);
+                    if(this.lookedglyph.parent.displayed != null){
+                        this.lookedglyph.parent.displayed.setScale(0.15);
+                    }
+                }
                 this.lookedglyph.ring.destroy();
                 this.lookedglyph.destroy();
                 this.lookedglyph = null;
+            }
+            if(this.lookedglyph != null){
+                this.clearchildren(this.lookedglyph);
+                this.lookedglyph.center = false;
+                this.lookedglyph.setScale(1);
+                if(this.lookedglyph.displayed != null){
+                    this.lookedglyph.parent.displayed.setScale(0.15);
+                }
+                //console.log(children.length);
+            }
+        });
+        glyphs[8].on("pointerdown", () =>{
+            if(this.lookedglyph != null && this.glyphcounts.focus >0){
+                this.lookedglyph.glyph = "focus";
+                this.glyphcounts.focus -= 1;
+                this.lookedglyph.display(this.add.image(0, 0, "focus"));
             }
         });
         
@@ -135,13 +167,26 @@ class gamescene extends Phaser.Scene{
     }
     clearchildren(glyph){
         if(glyph.children.length == 0){
-            glyph.ring.destroy();
-            glyph.destroy();
+            glyph.display(null);
+            if(glyph.ring!= null){
+                glyph.ring.destroy();
+            }
+            if(glyph.parent != null){
+                glyph.destroy();
+            }
             return;
         }
         else{
             for(let i = 0; i < glyph.children.length; i++){
                 this.clearchildren(glyph.children[i]);
+            }
+            glyph.children = [];
+            glyph.display(null);
+            if(glyph.ring!= null){
+                glyph.ring.destroy();
+            }
+            if(glyph.parent != null){
+                glyph.destroy();
             }
         }
     }
@@ -149,7 +194,7 @@ class gamescene extends Phaser.Scene{
         if(!this.revealed){
             cntr.x = this.lookedglyph.x;
             cntr.y = this.lookedglyph.y;
-            for(let i = 0; i < 8; i++){
+            for(let i = 0; i < 9; i++){
                 glyphs[i].setInteractive();
                 console.log(glyphs[i]);
                 let deltax = glyphs[i].x;
@@ -167,7 +212,7 @@ class gamescene extends Phaser.Scene{
     }
     hideglyphs(glyphs){
         if(this.revealed){
-            for(let i = 0; i < 8; i++){
+            for(let i = 0; i < 9; i++){
                 glyphs[i].removeInteractive();
                 this.tweens.add({
                     targets: glyphs[i],
@@ -195,6 +240,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         this.ring = null;
         this.parent = null;
         this.children = [];
+        this.displayed = null;
 
         scene.add.existing(this);
         this.setInteractive();
@@ -240,6 +286,9 @@ class glyphcircle extends Phaser.GameObjects.Arc{
                 if(!this.center){
                     this.center = true;
                     this.setScale(1.7);
+                    if(this.displayed!= null){
+                        this.displayed.setScale(0.2);
+                    }
                 }
             }
             if(ring!= null){
@@ -260,6 +309,27 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         let a = Math.abs(x1 - x2);
         let b = Math.abs(y1 - y2);
         return Math.sqrt(a*a + b*b);
+    }
+    display(glyph){
+        if(glyph != null){
+            if(this.displayed != null){
+                this.displayed.destroy();
+                this.displayed = null;
+            }
+            if(!this.center){
+                glyph.setScale(0.15);
+            }
+            else{
+                glyph.setScale(0.2);
+            }
+            glyph.x = this.x;
+            glyph.y = this.y;
+            this.displayed = glyph;
+        }
+        else if(this.displayed != null){
+            this.displayed.destroy();
+            this.displayed = null;
+        }
     }
 }
 let config = {
