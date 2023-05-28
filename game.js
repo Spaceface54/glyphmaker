@@ -131,9 +131,10 @@ class gamescene extends Phaser.Scene{
                 }
                 this.lookedglyph.ring.destroy();
                 this.lookedglyph.destroy();
+                this.lookedglyph.display(null);
                 this.lookedglyph = null;
             }
-            if(this.lookedglyph != null){
+            else if(this.lookedglyph != null){
                 this.clearchildren(this.lookedglyph);
                 this.lookedglyph.center = false;
                 this.lookedglyph.setScale(1);
@@ -156,9 +157,15 @@ class gamescene extends Phaser.Scene{
         this.input.on("held", (glyph) => {
             console.log("worked!");
             this.lookedglyph = glyph;
-            this.revealglyphs(cntr, glyphs);
+            this.input.disable(center);
+            this.disabletouch(center);
+            if(!this.revealed){
+                this.revealglyphs(cntr, glyphs);
+            }
         })
         this.input.on("pointerdown", () =>{
+            this.input.enable(center);
+            this.enabletouch(center);
             this.hideglyphs(glyphs);
         })
     }
@@ -196,7 +203,7 @@ class gamescene extends Phaser.Scene{
             cntr.y = this.lookedglyph.y;
             for(let i = 0; i < 9; i++){
                 glyphs[i].setInteractive();
-                console.log(glyphs[i]);
+                //console.log(glyphs[i]);
                 let deltax = glyphs[i].x;
                 let deltay = glyphs[i].y;
                 this.tweens.add({
@@ -220,6 +227,28 @@ class gamescene extends Phaser.Scene{
                     duration: 500
                 });
                 this.revealed = false;
+            }
+        }
+    }
+    disabletouch(glyph){
+        if(glyph.children.length == 0){
+            this.input.disable(glyph);
+            return;
+        }
+        else{
+            for(let i = 0; i < glyph.children.length; i++){
+                this.disabletouch(glyph.children[i]);
+            }
+        }
+    }
+    enabletouch(glyph){
+        if(glyph.children.length == 0){
+            this.input.enable(glyph);
+            return;
+        }
+        else{
+            for(let i = 0; i < glyph.children.length; i++){
+                this.enabletouch(glyph.children[i]);
             }
         }
     }
@@ -251,7 +280,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         this.on('pointerdown', ()=>{
             if(!this.setimer){
                 this.currenttimer = scene.time.addEvent({
-                    delay: 700,
+                    delay: 300,
                     loop: false,
                     callback: () =>{
                         if(!this.moved){
@@ -302,7 +331,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         })
     }
     ringdrag(ring, pointer){
-        console.log("dragging!");
+        //console.log("dragging!");
         ring.radius = this.dist(this.x, pointer.x, this.y, pointer.y);
     }
     dist(x1, x2, y1, y2){
