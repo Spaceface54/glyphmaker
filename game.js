@@ -33,32 +33,34 @@ class gamescene extends Phaser.Scene{
         let h = this.game.config.height;
 
         let glyphs = [
-            this.add.image(w*0.4, h*0.45, "fire"),
-            this.add.image(w*0.6, h*0.45, "water"),
-            this.add.image(w*0.4, h*0.55, "earth"),
-            this.add.image(w*0.6, h*0.55, "air"),
-            this.add.image(w*0.5, h*0.42, "light"),
-            this.add.image(w*0.5, h*0.58, "dark"),
-            this.add.image(w*0.37, h*0.5, "blank"),
-            this.add.image(w*0.63, h*0.5, "delete")
+            this.add.image(-7*5, -7*5, "fire"),
+            this.add.image(7*5, -7*5, "water"),
+            this.add.image(-7*5, 7*5, "earth"),
+            this.add.image(7*5, 7*5, "air"),
+            this.add.image(0, -10*5, "light"),
+            this.add.image(0, 10*5, "dark"),
+            this.add.image(-10*5, 0, "blank"),
+            this.add.image(10*5, 0, "delete")
         ]
-        let cntr = this.add.container(glyphs);
+        let cntr = this.add.container();
         //cntr.setDepth(2);
         cntr.x = w*0.5;
         cntr.y = h*0.5;
-        console.log(cntr.list[1]);
         for(let i = 0; i < 8; i++){
+            cntr.add(glyphs[i]);
             glyphs[i].setDepth(2);
-            glyphs[i].alpha = 1;
+            glyphs[i].alpha = 0;
             //glyphs[i].setInteractive();
             glyphs[i].setScale(0.2);
         }
+        console.log(cntr.list[1]);
+        console.log(w*0.5);
 
         glyphs[0].on("pointerdown", () =>{
             if(this.lookedglyph != null && this.glyphcounts.fire > 0){
                 this.lookedglyph.glyph = "fire";
                 this.glyphcounts.fire -= 1;
-                //console.log(this.glyphcounts.fire);
+                console.log(this.glyphcounts.fire);
             }
         });
         glyphs[1].on("pointerdown", () =>{
@@ -154,8 +156,8 @@ class gamescene extends Phaser.Scene{
                 let deltay = glyphs[i].y;
                 this.tweens.add({
                     targets: glyphs[i],
-                    x: {from: this.lookedglyph.x, to: deltax},
-                    y: {from: this.lookedglyph.y, to: deltay},
+                    x: {from: 0, to: deltax},
+                    y: {from: 0, to: deltay},
                     alpha: 1,
                     duration: 500
                 });
@@ -168,7 +170,7 @@ class gamescene extends Phaser.Scene{
             for(let i = 0; i < 8; i++){
                 glyphs[i].removeInteractive();
                 this.tweens.add({
-                    target: glyphs[i],
+                    targets: glyphs[i],
                     alpha: 0,
                     duration: 500
                 });
