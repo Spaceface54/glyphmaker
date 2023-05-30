@@ -7,13 +7,13 @@ class gamescene extends Phaser.Scene{
         super("gamescene");
         this.lookedglyph = null;
         this.glyphcounts = {
-            fire: 5,
-            water: 5,
-            air: 5,
-            earth: 5,
-            light: 5,
-            dark: 5,
-            focus: 3
+            fire: 100,
+            water: 100,
+            air: 100,
+            earth: 100,
+            light: 100,
+            dark: 100,
+            focus: 100
         }
         this.revealed = false;
         this.power = 0;
