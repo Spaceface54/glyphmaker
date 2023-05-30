@@ -36,18 +36,18 @@ class gamescene extends Phaser.Scene{
         //this.scale.startFullscreen();
         let w = this.game.config.width;
         let h = this.game.config.height;
-
+        let scalefactor = 10;
         let glyphs = [
-            this.add.image(-7*5, -7*5, "fire"),
-            this.add.image(7*5, -7*5, "water"),
-            this.add.image(-7*5, 7*5, "earth"),
-            this.add.image(7*5, 7*5, "air"),
-            this.add.image(0, -10*5, "light"),
-            this.add.image(0, 10*5, "dark"),
-            this.add.image(-10*5, 0, "blank"),
-            this.add.image(10*5, 0, "delete"),
-            this.add.image(12*5, -12*5, "focus"),
-            this.add.image(-12*5, -12*5, "library")
+            this.add.image(-7*scalefactor, -7*scalefactor, "fire"),
+            this.add.image(7*scalefactor, -7*scalefactor, "water"),
+            this.add.image(-7*scalefactor, 7*scalefactor, "earth"),
+            this.add.image(7*scalefactor, 7*scalefactor, "air"),
+            this.add.image(0, -10*scalefactor, "light"),
+            this.add.image(0, 10*scalefactor, "dark"),
+            this.add.image(-10*scalefactor, 0, "blank"),
+            this.add.image(10*scalefactor, 0, "delete"),
+            this.add.image(12*scalefactor, -12*scalefactor, "focus"),
+            this.add.image(-12*scalefactor, -12*scalefactor, "library")
         ]
         let cntr = this.add.container();
         //cntr.setDepth(2);
@@ -58,7 +58,7 @@ class gamescene extends Phaser.Scene{
             glyphs[i].setDepth(2);
             glyphs[i].alpha = 0;
             //glyphs[i].setInteractive();
-            glyphs[i].setScale(0.2);
+            glyphs[i].setScale(0.4);
         }
         console.log(cntr.list[1]);
         console.log(w*0.5);
@@ -165,8 +165,8 @@ class gamescene extends Phaser.Scene{
         });
         
         
-        let center = new glyphcircle(this, w*0.5, h*0.5, 10, 0xFFFFFF, 0);
-        //center.showrings(this);
+        let center = new glyphcircle(this, w*0.5, h*0.5, 30, 0xFFFFFF, 0);
+        center.showrings(this);
         this.input.on("held", (glyph) => {
             console.log("worked!");
             this.lookedglyph = glyph;
@@ -195,7 +195,7 @@ class gamescene extends Phaser.Scene{
 
     createBodyGui(body)
     {
-        const gui = new dat.GUI({ width: 600 });
+        const gui = new dat.GUI({ width: 200 });
         this.createVectorGui(gui, 'X is power, Y is library number', body.maxVelocity, 0, 100, 0, 1000, 10);
         return gui;
     }
@@ -319,9 +319,9 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         this.displayed = null;
         this.text = null;
 
-        this.innerring = 150*(0.33);
-        this.middlering = 150*(0.66);
-        this.outerring = 150;
+        this.innerring = 450*(0.33);
+        this.middlering = 450*(0.66);
+        this.outerring = 450;
 
         scene.add.existing(this);
         this.setInteractive();
@@ -368,7 +368,7 @@ class glyphcircle extends Phaser.GameObjects.Arc{
                     this.center = true;
                     this.setScale(1.7);
                     if(this.displayed!= null){
-                        this.displayed.setScale(0.2);
+                        this.displayed.setScale(0.5);
                     }
                 }
             }
@@ -400,10 +400,10 @@ class glyphcircle extends Phaser.GameObjects.Arc{
                 this.displayed = null;
             }
             if(!this.center){
-                glyph.setScale(0.15);
+                glyph.setScale(0.4);
             }
             else{
-                glyph.setScale(0.2);
+                glyph.setScale(0.5);
             }
             glyph.x = this.x;
             glyph.y = this.y;
@@ -419,13 +419,17 @@ class glyphcircle extends Phaser.GameObjects.Arc{
         }
     }
     showrings(scene){
-        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.innerring, 0, 360, false, 0x00FF00, 0.6));
-        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.middlering, 0, 360, false, 0xFFA500, 0.6));
-        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.outerring, 0, 360, false, 0x880808, 0.6));
+        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.innerring, 0, 360, false, 0x00FF00, 0.2));
+        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.middlering, 0, 360, false, 0xFFA500, 0.2));
+        scene.add.existing(new Phaser.GameObjects.Arc(scene, this.x, this.y, this.outerring, 0, 360, false, 0x880808, 0.2));
     }
     
     addtext(scene, num){
+        if(this.text != null){
+            this.text.destroy();
+        }
         this.text = scene.add.text(this.x, this.y, num.toString(10));
+        this.text.setScale(2);
         this.text.setOrigin(0.5,0.5);
         this.text.setTint(0x000000);
     }
@@ -439,8 +443,12 @@ class glyphcombo{
 }
 let config = {
     type: Phaser.WEBGL,
-    width: 1170,
-    height: 2532,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 1920,
+        height: 1080
+    },
     backgroundColor: 0xFFFF00,
     physics: {
         default: "arcade",
