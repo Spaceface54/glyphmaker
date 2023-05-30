@@ -196,7 +196,7 @@ class gamescene extends Phaser.Scene{
     createBodyGui(body)
     {
         const gui = new dat.GUI({ width: 200 });
-        this.createVectorGui(gui, 'X is power, Y is library number', body.maxVelocity, 0, 100, 0, 1000, 10);
+        this.createVectorGui(gui, 'X is power, Y is library number', body.maxVelocity, 0, 20, 0, 1000, 1);
         return gui;
     }
     
